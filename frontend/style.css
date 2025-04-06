@@ -1,0 +1,5 @@
+body { font-family: sans-serif; padding: 2rem; background: #f4f4f4; }
+h1 { color: #333; }
+input { padding: 0.5rem; margin-right: 1rem; }
+button { padding: 0.5rem 1rem; }
+#results { margin-top: 2rem; background: #fff; padding: 1rem; border-radius: 8px; }

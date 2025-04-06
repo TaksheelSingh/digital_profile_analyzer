@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Profile Analyzer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>AI-Powered Developer Profile Analyzer</h1>
+  <form id="profile-form">
+    <input type="text" id="github" placeholder="GitHub Username" required>
+    <button type="submit">Analyze</button>
+  </form>
+  <div id="results"></div>
+
+  <script>
+    const form = document.getElementById('profile-form');
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('github').value;
+      const github = await fetch(`https://api.github.com/users/${username}/repos`).then(r => r.json());
+      const github_score = github.length;
+      const leetcode_score = 120; // mocked
+
+      const res = await fetch('http://localhost:8000/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          github: { repos: github_score },
+          leetcode: { problems_solved: leetcode_score }
+        })
+      });
+
+      const result = await res.json();
+      document.getElementById('results').innerHTML = `
+        <h2>Recruiter Readiness Score: ${result.recruiter_readiness_score}</h2>
+        <p>Feedback: ${result.feedback.join(', ')}</p>
+        <pre>${JSON.stringify(result.breakdown, null, 2)}</pre>
+      `;
+    };
+  </script>
+</body>
+</html>
