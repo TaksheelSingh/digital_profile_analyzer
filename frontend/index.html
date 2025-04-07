@@ -1,42 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <title>Profile Analyzer</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Profile Analyzer</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <h1>AI-Powered Developer Profile Analyzer</h1>
-  <form id="profile-form">
-    <input type="text" id="github" placeholder="GitHub Username" required>
-    <button type="submit">Analyze</button>
-  </form>
-  <div id="results"></div>
+  <div class="navbar">
+    <h2>Digital Profile Analyzer</h2>
+  </div>
+
+  <div class="container">
+    <h1>Analyze Your Developer Profile</h1>
+    <div class="input-box">
+      <label for="profile">Paste your GitHub Profile URL or Bio:</label>
+      <textarea id="profile" placeholder="e.g. https://github.com/username or I'm a Python developer..."></textarea>
+      <button onclick="analyzeProfile()">Analyze</button>
+    </div>
+    <div id="output"></div>
+  </div>
+
+  <footer>
+    &copy; 2025 Team SIU. All rights reserved.
+  </footer>
 
   <script>
-    const form = document.getElementById('profile-form');
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      const username = document.getElementById('github').value;
-      const github = await fetch(`https://api.github.com/users/${username}/repos`).then(r => r.json());
-      const github_score = github.length;
-      const leetcode_score = 120; // mocked
+    async function analyzeProfile() {
+      const profileText = document.getElementById("profile").value;
+      const outputDiv = document.getElementById("output");
+      outputDiv.innerHTML = "Analyzing...";
 
-      const res = await fetch('http://localhost:8000/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          github: { repos: github_score },
-          leetcode: { problems_solved: leetcode_score }
-        })
-      });
+      try {
+        const response = await fetch("http://127.0.0.1:8000/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ profile: profileText })
+        });
 
-      const result = await res.json();
-      document.getElementById('results').innerHTML = `
-        <h2>Recruiter Readiness Score: ${result.recruiter_readiness_score}</h2>
-        <p>Feedback: ${result.feedback.join(', ')}</p>
-        <pre>${JSON.stringify(result.breakdown, null, 2)}</pre>
-      `;
-    };
+        const data = await response.json();
+        outputDiv.innerText = data.result || data.detail || "No result returned.";
+      } catch (error) {
+        outputDiv.innerText = "Error: Unable to connect to the backend.";
+        console.error(error);
+      }
+    }
   </script>
 </body>
+
 </html>
